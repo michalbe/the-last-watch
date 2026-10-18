@@ -85,7 +85,7 @@ const COL_BLUE = 0, COL_AMBER = 1, COL_GREEN = 2, COL_VIOLET = 3, COL_WHITE = 4;
 const W = {
   seaY: -6.2, lamp: 0, /* 0 off, 1 oil, 2 posoka, 3 gin */ lensAng: 0.6, rot: false, flash: 0, curtain: 1,
   falseLight: true, shipX: -520, shipZ: 330, shipVis: 1, monster: 0, lightning: 0, dawn: 0,
-  lampka: true, fire: true, shake: 0, smashed: false, zoom: 1
+  lampka: true, fire: true, shake: 0, smashed: false, zoom: 1, itemHi: 0
 };
 
 // materials
@@ -204,15 +204,22 @@ function buildWorld() {
   boxAt(-2.2, 3.78, 1.36, 0.85, 0.06, 0.42, M_WOOD);
   boxAt(-2.2, 3.98, 2.42, 0.42, 1.06, 0.2, M_BRICK);
   boxAt(-2.32, 4.12, 1.78, 0.03, 0.03, 0.08, M_IRON); boxAt(-2.08, 4.12, 1.78, 0.03, 0.03, 0.08, M_IRON);
-  G.matches = boxAt(-2.36, 3.62, 1.44, 0.06, 0.02, 0.035, M_PAPER, { tag: 'matches' });
-  { const p = polar(-1.94, 3.5); G.poker = add({ k: 'cyl', x: p[0], z: p[1], r: 0.02, y0: 0, y1: 0.85, mat: M_IRON, capT: 1 }); }
+  G.matches = boxAt(-2.36, 3.62, 1.455, 0.09, 0.035, 0.055, M_PAPER, { tag: 'matches', item: 1 });
+  { const p = polar(-2.15, 3.35); G.poker = add({ k: 'cyl', x: p[0], z: p[1], r: 0.032, y0: 0, y1: 0.9, mat: M_IRON, capT: 1, item: 1 }); }
   // bunks
   G.bunkMine = boxAt(2.55, 3.72, 0.45, 0.85, 0.25, 0.42, M_CLOTH, { tag: 'bunk' });
+  { const c = polar(2.55, 3.72), tx = Math.cos(2.55), tz = -Math.sin(2.55);
+    G.biscuit = add({ k: 'box', x: c[0] + tx * 0.55, y: 0.72, z: c[1] + tz * 0.55, hx: 0.09, hy: 0.02, hz: 0.09, rot: 0.4, mat: M_PAPER, item: 1 }); }
   G.bunkRoman = boxAt(-1.78, 3.72, 0.45, 0.85, 0.25, 0.42, M_CLOTH, { tag: 'bunk' });
   G.bunkW = boxAt(-2.68, 3.72, 0.45, 0.85, 0.25, 0.42, M_CLOTH, { tag: 'bunkNeat' });
   G.chestW = boxAt(-2.68, 2.95, 0.24, 0.4, 0.24, 0.26, M_WOOD, { tag: 'chest' });
   G.padlock = boxAt(-2.68, 2.67, 0.32, 0.045, 0.055, 0.02, M_BRASS);
-  { const p = polar(-2.05, 3.15); G.gin = add({ k: 'cyl', x: p[0], z: p[1], r: 0.045, y0: 0, y1: 0.3, mat: M_BOTTLE, capT: 1 }); }
+  G.lidW = boxAt(-2.68, 3.23, 0.72, 0.4, 0.24, 0.025, M_WOOD, { hidden: true });
+  { const c = polar(-2.68, 2.95), tx = Math.cos(-2.68), tz = -Math.sin(-2.68);
+    G.vial = add({ k: 'cyl', x: c[0] - tx * 0.2, z: c[1] - tz * 0.2, r: 0.035, y0: 0.48, y1: 0.62, mat: M_BOTTLE, capT: 1, hidden: true, item: 1 });
+    G.letterP = add({ k: 'box', x: c[0] + tx * 0.02, y: 0.49, z: c[1] + tz * 0.02, hx: 0.11, hy: 0.008, hz: 0.08, rot: -2.4, mat: M_PAPER, hidden: true, item: 1 });
+    G.timetable = add({ k: 'box', x: c[0] + tx * 0.24, y: 0.49, z: c[1] + tz * 0.24, hx: 0.1, hy: 0.008, hz: 0.13, rot: -2.9, mat: M_PAPER, hidden: true, item: 1 }); }
+  { const p = polar(-2.05, 3.15); G.gin = add({ k: 'cyl', x: p[0], z: p[1], r: 0.06, y0: 0, y1: 0.36, mat: M_BOTTLE, capT: 1, item: 1 }); }
   // table + things on it
   add({ k: 'box', x: 0, y: 0.74, z: 0.55, hx: 0.65, hy: 0.03, hz: 0.42, rot: 0, mat: M_WOOD, tag: 'table' });
   [[0.58, 0.91], [-0.58, 0.91], [0.58, 0.19], [-0.58, 0.19]].forEach(function (l) { add({ k: 'cyl', x: l[0], z: l[1], r: 0.03, y0: 0, y1: 0.72, mat: M_WOOD }); });
@@ -233,10 +240,10 @@ function buildWorld() {
   // west window, sill, raven, nest, fuse
   boxAt(-1.35, 4.21, 1.65, 0.7, 0.5, 0.02, M_GLASS, { pass: windowPass, thin: 1, tag: 'window' });
   boxAt(-1.35, 4.5, 1.11, 0.78, 0.04, 0.3, M_STONE);
-  { const p = polar(-1.43, 4.55); G.raven = add({ k: 'sph', x: p[0], y: 1.33, z: p[1], r: 0.13, mat: M_FEATHER }); }
-  { const p = polar(-1.43, 4.47); G.ravenHead = add({ k: 'sph', x: p[0], y: 1.49, z: p[1], r: 0.075, mat: M_FEATHER }); }
-  { const p = polar(-1.24, 4.6); G.nest = add({ k: 'sph', x: p[0], y: 1.2, z: p[1], r: 0.17, mat: M_WOOD, tag: 'nest' }); }
-  { const p = polar(-1.24, 4.5); G.fuse = add({ k: 'box', x: p[0], y: 1.31, z: p[1], hx: 0.04, hy: 0.015, hz: 0.015, rot: 0, mat: M_BRASS }); }
+  { const p = polar(-1.43, 4.55); G.raven = add({ k: 'sph', x: p[0], y: 1.33, z: p[1], r: 0.13, mat: M_FEATHER, lit: 0.4 }); }
+  { const p = polar(-1.43, 4.47); G.ravenHead = add({ k: 'sph', x: p[0], y: 1.49, z: p[1], r: 0.075, mat: M_FEATHER, lit: 0.4 }); }
+  { const p = polar(-1.24, 4.6); G.nest = add({ k: 'sph', x: p[0], y: 1.2, z: p[1], r: 0.17, mat: M_WOOD, tag: 'nest', lit: 0.22 }); }
+  { const p = polar(-1.24, 4.52); G.fuse = add({ k: 'box', x: p[0], y: 1.385, z: p[1], hx: 0.06, hy: 0.02, hz: 0.025, rot: 0.5, mat: M_BRASS, lit: 0.45, item: 1 }); }
   // --- annex: storeroom
   vis('MIOG');
   add({ k: 'hbox', x: 6.65, y: 1.4, z: 0, hx: 2.4, hy: 1.4, hz: 2.5, rot: 0, mat: M_WALL, matOut: M_WALLOUT, tag: 'annex', holes: [
@@ -250,13 +257,14 @@ function buildWorld() {
   add({ k: 'cyl', x: HATCH.x + 0.25, z: HATCH.z + 0.4, r: 0.025, y0: -2.4, y1: 0, mat: M_IRON });
   for (let i = 0; i < 7; i++) add({ k: 'box', x: HATCH.x, y: -2.1 + i * 0.32, z: HATCH.z + 0.4, hx: 0.25, hy: 0.018, hz: 0.018, rot: 0, mat: M_IRON });
   vis('MI'); [[5.0, 2.0], [5.75, 2.05], [6.5, 2.0]].forEach(function (b) { add({ k: 'cyl', x: b[0], z: b[1], r: 0.33, y0: 0, y1: 0.95, mat: M_WOOD, capT: 1, tag: 'barrel' }); });
-  G.canister = add({ k: 'box', x: 5.8, y: 0.25, z: 2.4, hx: 0.14, hy: 0.25, hz: 0.07, rot: 0, mat: M_IRON });
+  G.canister = add({ k: 'box', x: 7.25, y: 0.27, z: 1.6, hx: 0.15, hy: 0.27, hz: 0.09, rot: 0.3, mat: M_IRON, item: 1 });
   G.chestR = add({ k: 'box', x: 8.55, y: 0.3, z: 0.6, hx: 0.25, hy: 0.3, hz: 0.42, rot: 0, mat: M_WOOD, tag: 'chest' });
   add({ k: 'box', x: 8.29, y: 0.38, z: 0.6, hx: 0.02, hy: 0.06, hz: 0.06, rot: 0, mat: M_BRASS });
-  G.posoka = add({ k: 'cyl', x: 8.55, z: 0.6, r: 0.09, y0: 0.6, y1: 0.95, mat: M_BOTTLE, capT: 1, hidden: true });
+  G.posoka = add({ k: 'cyl', x: 8.5, z: 0.6, r: 0.11, y0: 0.6, y1: 1.02, mat: M_BOTTLE, capT: 1, hidden: true, tag: 'ichor' });
+  G.lidR = add({ k: 'box', x: 8.83, y: 0.85, z: 0.6, hx: 0.025, hy: 0.25, hz: 0.42, rot: 0, mat: M_WOOD, hidden: true });
   add({ k: 'box', x: 9.0, y: 1.75, z: -1.2, hx: 0.02, hy: 0.05, hz: 0.02, rot: 0, mat: M_IRON });
-  G.key = add({ k: 'box', x: 7.55, y: 0.012, z: -0.55, hx: 0.06, hy: 0.01, hz: 0.025, rot: 0.4, mat: M_BRASS });
-  G.noteBottle = add({ k: 'cyl', x: 6.3, z: -1.9, r: 0.04, y0: 0, y1: 0.13, mat: M_BOTTLE, capT: 1 });
+  G.key = add({ k: 'box', x: 7.55, y: 0.015, z: -0.55, hx: 0.1, hy: 0.015, hz: 0.035, rot: 0.4, mat: M_BRASS, item: 1 });
+  G.noteBottle = add({ k: 'cyl', x: 6.3, z: -1.9, r: 0.045, y0: -0.02, y1: 0.12, mat: M_BOTTLE, capT: 1, item: 1 });
   // --- cave below the annex
   vis('RMO');
   add({ k: 'hsph', x: CAVE.x, y: CAVE.y, z: CAVE.z, r: CAVE.r, mat: M_CAVE, matOut: M_ROCK, open: caveOpen, tag: 'cave' });
@@ -279,7 +287,7 @@ function buildWorld() {
   [[1.4, 1.4], [-1.4, 1.4], [1.4, -1.4], [-1.4, -1.4]].forEach(function (q) { add({ k: 'cyl', x: q[0], z: q[1], r: 0.06, y0: 9.5, y1: 10.9, mat: M_IRON }); });
   { const p = polar(-2.5, 3.2); add({ k: 'cyl', x: p[0], z: p[1], r: 0.22, y0: 9.7, y1: 10.3, mat: M_IRON, capT: 1 }); add({ k: 'cyl', x: p[0], z: p[1], r: 0.02, y0: 10.3, y1: 12.45, mat: M_IRON }); }
   boxAt(2.4, 2.9, 10.9, 0.3, 0.3, 0.08, M_BRASS, { tag: 'dialK' });
-  G.harpoon = add({ k: 'box', x: 1.0, y: 10.47, z: 0.5, hx: 1.25, hy: 0.04, hz: 0.04, rot: 0.927, mat: M_IRON, tag: 'harpoon' });
+  G.harpoon = add({ k: 'box', x: 1.0, y: 10.47, z: 0.5, hx: 1.25, hy: 0.04, hz: 0.04, rot: 0.927, mat: M_IRON, tag: 'harpoon', item: 1 });
   vis('KG'); add({ k: 'cyl', x: 1.95, z: -1.4, r: 0.03, y0: 9.5, y1: 13.1, mat: M_IRON });
   add({ k: 'cyl', x: 2.41, z: -1.4, r: 0.03, y0: 9.5, y1: 13.1, mat: M_IRON });
   for (let i = 0; i < 11; i++) add({ k: 'box', x: 2.18, y: 9.8 + i * 0.3, z: -1.4, hx: 0.23, hy: 0.02, hz: 0.02, rot: 0, mat: M_IRON });
@@ -793,6 +801,9 @@ function shade(ox, oy, oz, dx, dy, dz, px, py, pz) {
   let L = alb * tex * (Ic + Iw) * (0.5 + 0.5 * facing);
   if (zone === Z_OUT) { const f = Math.exp(-t * 0.016); L = L * f + (0.03 + W.lightning * 0.12 + W.dawn * 0.18) * (1 - f); }
   if (Iw > Ic * 1.25 && L > 0.14) gCol = COL_AMBER;
+  if (p && p.tag === 'ichor' && L > 0.06) { gCol = COL_VIOLET; L = Math.max(L, 0.35); }
+  if (p && p.lit) L = Math.max(L, p.lit);
+  if (p && p.item && W.itemHi > 0.01) { L = Math.max(L * (1 + 0.3 * W.itemHi), 0.42 * W.itemHi); if (W.itemHi > 0.3) gCol = COL_WHITE; }
   gL = L; gRamp = ramp;
 }
 
@@ -1277,27 +1288,59 @@ function startRun(toKey, newEntries, onEnd) {
     }
   };
 }
+function shiftPrim(p, dx, dy, dz) {
+  p.x += dx; p.z += dz;
+  if (p.k === 'cyl' || p.k === 'tube') { p.y0 += dy; p.y1 += dy; } else p.y += dy;
+  bound(p);
+}
+// Look at something: first turn to it with the whole room in view, then move in and zoom
+// until it fills about a third of the screen, hold, and come back the same way.
 function startGlance(target, o, done) {
-  const p0 = Object.assign({}, cam);
+  const p0 = Object.assign({}, cam), rm = reduceMotion ? 0.7 : 1;
   const dx = target[0] - p0.x, dz = target[2] - p0.z, dist = Math.max(0.01, Math.hypot(dx, dz));
   const ty = Math.atan2(dx, dz);
   const mv = Math.min(dist * (o.approach || 0), Math.max(0, dist - (o.minDist == null ? 1.2 : o.minDist)));
   const ex = p0.x + dx / dist * mv, ez = p0.z + dz / dist * mv, ey = p0.y - (o.dip || 0);
-  const tp = clamp(Math.atan2(target[1] - ey, Math.max(0.35, dist - mv)), -1.25, 0.8);
-  const go = (0.85 + mv * 0.1 + Math.abs(angDiff(p0.yaw, ty)) * 0.12) * (reduceMotion ? 0.7 : 1), hold = o.hold == null ? 0.5 : o.hold, T = go * 2 + hold;
+  const dEnd = Math.hypot(target[0] - ex, target[1] - ey, target[2] - ez);
+  const zmax = o.size ? clamp(0.3 * dEnd / o.size, 1, 4.5) : 1;
+  const lift = o.lift || [];
+  const hold = o.hold == null ? (lift.length ? 1.0 : 0.7) : o.hold;
+  const turnT = (0.75 + Math.abs(angDiff(p0.yaw, ty)) * 0.12) * rm;
+  const zin = (zmax > 1.15 || mv > 0.2 || o.dip) ? (0.6 + (zmax - 1) * 0.12 + mv * 0.08) * rm : 0;
+  const zout = zin * 0.6, back = turnT * 0.8;
+  const tA = turnT, tB = tA + zin, tC = tB + hold, tD = tC + zout, T = tD + back;
   const smax = o.shadeMax == null ? 0.95 : o.shadeMax;
+  const midT = tB + hold * 0.55;
+  const pitchTo = function () { return clamp(Math.atan2(target[1] - cam.y, Math.max(0.35, Math.hypot(target[0] - cam.x, target[2] - cam.z))), -1.25, 0.8); };
+  let lifted = 0;
   A.B0 = makeBake(p0, log.slice()); A.B1 = null; A.a0 = 1; A.a1 = 0;
   anim = {
-    T, t: 0, midT: go + hold * 0.5, mid: o.mid, midDone: false,
+    T, t: 0, midT: midT, mid: o.mid, midDone: false,
     step(t) {
-      const k = t < go ? easeIO(t / go) : (t < go + hold ? 1 : 1 - easeIO((t - go - hold) / go));
-      cam.x = lerp(p0.x, ex, k); cam.z = lerp(p0.z, ez, k); cam.y = lerp(p0.y, ey, k);
-      cam.yaw = lerpAng(p0.yaw, ty, k); cam.pitch = lerp(p0.pitch, tp, k);
-      A.a0 = 1;
-      A.shade = sstep(0.2, 0.85, t) * (1 - sstep(T - 0.85, T - 0.05, t)) * smax;
+      let kt, kz;   // kt: turned toward the thing; kz: moved in and zoomed
+      if (t < tA) { kt = easeIO(t / turnT); kz = 0; }
+      else if (t < tB) { kt = 1; kz = easeIO((t - tA) / zin); }
+      else if (t < tC) { kt = 1; kz = 1; }
+      else if (t < tD) { kt = 1; kz = 1 - easeIO((t - tC) / zout); }
+      else { kt = 1 - easeIO((t - tD) / back); kz = 0; }
+      cam.x = lerp(p0.x, ex, kz); cam.z = lerp(p0.z, ez, kz); cam.y = lerp(p0.y, ey, kz);
+      cam.yaw = lerpAng(p0.yaw, ty, kt); cam.pitch = lerp(p0.pitch, pitchTo(), kt);
+      W.zoom = 1 + (zmax - 1) * kz;
+      W.itemHi = kt;
+      A.a0 = 1 - kt * kt;
+      A.shade = sstep(0.15, 0.7, t) * (1 - sstep(T - 0.7, T - 0.05, t)) * smax;
+      // what you take rises a little and drifts toward you, then is gone
+      if (lift.length && t < midT) {
+        const want = sstep(midT - 0.5, midT, t), d = want - lifted;
+        if (d) {
+          const p = lift[0], py = p.k === 'cyl' ? (p.y0 + p.y1) / 2 : p.y;
+          const vx = (ex - p.x) * 0.35 * d, vz = (ez - p.z) * 0.35 * d, vy = ((ey - py) * 0.2 + 0.12) * d;
+          lift.forEach(function (q) { shiftPrim(q, vx, vy, vz); }); lifted = want;
+        }
+      }
       if (o.world) o.world(t / T);
     },
-    end() { Object.assign(cam, p0); A.B0 = null; A.shade = 0; if (done) done(); }
+    end() { W.zoom = 1; W.itemHi = 0; Object.assign(cam, p0); A.B0 = null; A.shade = 0; if (done) done(); }
   };
 }
 // the telescope: walk round the lens to the eyepiece, zoom in on the target, come back
@@ -1342,8 +1385,9 @@ function startPan(done) {
       cam.yaw = p0.yaw + sg * TAU * k; cam.pitch = p0.pitch + 0.14 * Math.sin(Math.PI * k);
       A.a0 = 1;
       A.shade = sstep(0.3, 1.2, t) * (1 - sstep(T - 1.0, T - 0.05, t));
+      W.itemHi = A.shade;
     },
-    end() { Object.assign(cam, p0); A.B0 = null; A.shade = 0; if (done) done(); }
+    end() { W.itemHi = 0; Object.assign(cam, p0); A.B0 = null; A.shade = 0; if (done) done(); }
   };
 }
 // a scripted camera move ending on a new text (used for endings)
@@ -1402,6 +1446,11 @@ function syncWorld() {
   G.harpoon.hidden = !F('harpoonInGears');
   G.grate.hidden = F('grateOpen');
   G.padlock.hidden = F('chestWOpen');
+  G.lidW.hidden = !F('chestWOpen'); G.lidR.hidden = !F('chestROpen');
+  G.vial.hidden = !F('chestWOpen') || has('fiolka');
+  G.letterP.hidden = !F('chestWOpen') || has('list');
+  G.timetable.hidden = !F('chestWOpen') || has('rozklad');
+  G.biscuit.hidden = has('suchar') || F('sucharFed');
   G.garbLantern.hidden = G.garbGlass.hidden = has('latarnia');
   G.barrel.hidden = F('romanAlly');
   W.romanGone = F('romanAlly');
@@ -1515,7 +1564,7 @@ function roomEntries(r, stampTxt) {
 const OBJ = {
   koja: { room: 'izba', kw: ['koj', 'koi', 'lozk', 'bunk', 'bed', 'posl', 'poduszk', 'pillow'], pos: [2.07, 0.7, -3.09], g: { approach: 0.4 },
     ex: () => has('suchar') || F('sucharFed') ? ['Twoja koja. Koc zsunął się na podłogę.', 'Your bunk. The blanket has slid onto the floor.'] : ['Twoja koja. Koc zsunął się na podłogę. Pod poduszką leży suchar okrętowy.', "Your bunk. The blanket has slid onto the floor. A ship's biscuit lies under the pillow."] },
-  suchar: { room: 'izba', kw: ['suchar', 'biscuit', 'hardtack'], take: true, pos: [2.07, 0.7, -3.09], g: { approach: 0.4, dip: 0.3 }, name: ['suchar', 'ship biscuit'],
+  suchar: { room: 'izba', kw: ['suchar', 'biscuit', 'hardtack'], take: true, pos: [1.61, 0.73, -3.4], g: { approach: 0.4, dip: 0.3 }, name: ['suchar', 'ship biscuit'],
     vis: () => !F('sucharFed'), ex: () => ['Twardy jak kamień suchar okrętowy.', "A ship's biscuit, hard as stone."], takeMsg: ['Wsuwasz suchar do kieszeni.', 'You pocket the biscuit.'], listHidden: true },
   kojaR: { room: 'izba', kw: ['koj roman', 'koi roman', 'lozk roman', 'bunk roman', 'bed roman'], pos: [-3.64, 0.7, -0.77], g: { approach: 0.4 },
     ex: () => [has('samogon') || F('ginGone') ? 'Koja Romana, przy samym kominku. Pościel zmięta, czuć od niej samogon.' : 'Koja Romana, przy samym kominku. Pościel zmięta, czuć od niej samogon. Obok, na podłodze, stoi butelka.',
@@ -1533,12 +1582,12 @@ const OBJ = {
       const names = rest.map(function (k) { return T(OBJ[k].name); });
       return ['Kufer jest wyważony. W środku: ' + names.join(', ') + '.', 'The chest has been forced. Inside: ' + names.join(', ') + '.'];
     } },
-  fiolka: { room: 'izba', kw: ['fiolk', 'laudanum', 'vial', 'flakon', 'lekarstw', 'medicine'], take: true, pos: [-1.31, 0.4, -2.64], g: { approach: 0.5, dip: 0.4 }, name: ['fiolka laudanum', 'vial of laudanum'],
+  fiolka: { room: 'izba', kw: ['fiolk', 'laudanum', 'vial', 'flakon', 'lekarstw', 'medicine'], take: true, pos: [-1.13, 0.55, -2.73], g: { approach: 0.5, dip: 0.4 }, name: ['fiolka laudanum', 'vial of laudanum'],
     vis: () => F('chestWOpen'), ex: () => ['Brązowa fiolka z apteki w Pucku. Na etykiecie: LAUDANUM. Jest do połowy pusta. Pachnie tak samo jak osad w twoim kubku.', 'A brown vial from the pharmacy in Puck. The label reads LAUDANUM. It is half empty. It smells exactly like the residue in your mug.'],
     read: () => OBJ.fiolka.ex(), takeMsg: ['Bierzesz fiolkę.', 'You take the vial.'], listHidden: true },
-  list: { room: 'izba', kw: ['list', 'letter'], take: true, pos: [-1.31, 0.4, -2.64], g: { approach: 0.5, dip: 0.4 }, name: ['list', 'letter'],
+  list: { room: 'izba', kw: ['list', 'letter'], take: true, pos: [-1.33, 0.49, -2.63], g: { approach: 0.5, dip: 0.4 }, name: ['list', 'letter'],
     vis: () => F('chestWOpen'), ex: () => letterText(), read: () => letterText(), takeMsg: ['Bierzesz list.', 'You take the letter.'], listHidden: true },
-  rozklad: { room: 'izba', kw: ['rozklad', 'rejs', 'timetable', 'schedule', 'sailing'], take: true, pos: [-1.31, 0.4, -2.64], g: { approach: 0.5, dip: 0.4 }, name: ['rozkład rejsów', 'sailing timetable'],
+  rozklad: { room: 'izba', kw: ['rozklad', 'rejs', 'timetable', 'schedule', 'sailing'], take: true, pos: [-1.52, 0.49, -2.53], g: { approach: 0.5, dip: 0.4 }, name: ['rozkład rejsów', 'sailing timetable'],
     vis: () => F('chestWOpen'), ex: () => ['Rozkład rejsów parowców z Kopenhagi do Gdyni. Ktoś zakreślił ołówkiem jedną linijkę: SS GIEWONT, 18.10, mija Skałę Wdowy ok. 4:00.', "A steamer timetable, Copenhagen to Gdynia. Someone has circled one line in pencil: SS GIEWONT, 18.10, passes Widow's Rock approx. 4:00."],
     read: () => OBJ.rozklad.ex(), takeMsg: ['Bierzesz rozkład rejsów.', 'You take the timetable.'], listHidden: true },
   buty: { room: '*', kw: ['buty', 'butow', 'butach', 'butami', 'obuw', 'podeszw', 'boot', 'shoe', 'sole'], ex: () => ['Twoje buty mają gładkie, skórzane podeszwy. Są suche. Nie wychodziłeś dziś z izby.', "Your boots have smooth leather soles. They're dry. You haven't been outside tonight."] },
@@ -1564,7 +1613,7 @@ const OBJ = {
       : ['Kruk siedzi w gnieździe i przygląda ci się jednym okiem. — PONG! — skrzeczy.', "The raven sits in his nest and eyes you sideways. 'PONG!' he croaks."] },
   gniazdo: { room: 'izba', kw: ['gniazd', 'nest'], pos: [-4.35, 1.25, 1.49], g: { approach: 0.35 }, vis: () => F('windowSeen'),
     ex: () => F('fuseInNest') ? ['W gnieździe, między patykami, błyszczy coś małego i metalowego. Kruk pilnuje tego jak skarbu.', 'Something small and metal glints between the sticks of the nest. The raven guards it like treasure.'] : ['Gniazdo z patyków i wodorostów.', 'A nest of sticks and seaweed.'] },
-  okno: { room: 'izba', kw: ['okn', 'szyb', 'window', 'parapet', 'sill'], pos: [-4.11, 1.65, 0.92], g: { approach: 0.3 }, ex: () => { S.f.windowSeen = true; return ['Za oknem ulewa i ciemność. Na parapecie, w gnieździe z patyków i wodorostów, kuli się kruk. To przybłęda, którego dokarmia Roman. To on stukał w szybę.' + (F('fuseInNest') ? ' W gnieździe coś błyszczy.' : ''), 'Rain and darkness outside. On the sill, in a nest of sticks and seaweed, a raven sits hunched. It is a stray that Roman feeds. He was the one tapping on the glass.' + (F('fuseInNest') ? ' Something glints in the nest.' : '')]; } },
+  okno: { room: 'izba', kw: ['okn', 'szyb', 'window', 'parapet', 'sill'], pos: [-4.39, 1.35, 0.98], g: { approach: 0.3 }, ex: () => { S.f.windowSeen = true; return ['Za oknem ulewa i ciemność. Na parapecie, w gnieździe z patyków i wodorostów, kuli się kruk. To przybłęda, którego dokarmia Roman. To on stukał w szybę.' + (F('fuseInNest') ? ' W gnieździe coś błyszczy.' : ''), 'Rain and darkness outside. On the sill, in a nest of sticks and seaweed, a raven sits hunched. It is a stray that Roman feeds. He was the one tapping on the glass.' + (F('fuseInNest') ? ' Something glints in the nest.' : '')]; } },
   lustro: { room: 'izba', kw: ['lustr', 'mirror', 'odbic', 'tatuaz', 'tattoo', 'reflection', 'twarz', 'face', 'piers', 'siebie', 'myself', 'yourself', 'koszul', 'shirt'], pos: [2.31, 1.6, -3.44], g: { approach: 0.5 },
     ex: () => {
       if (F('mirrorBroken')) return ['Lustro jest rozbite. Twoje odbicie patrzy na ciebie z każdego odłamka osobno.', 'The mirror is broken. Your reflection looks back at you from every shard separately.'];
@@ -1578,9 +1627,9 @@ const OBJ = {
       if (!has('pogrzebacz')) a = [a[0] + ' O kominek oparty jest pogrzebacz.', a[1] + ' A poker leans against it.'];
       return [a[0] + ' Nad gzymsem wiszą dwa puste haki.', a[1] + ' Two empty hooks hang above the mantel.'];
     } },
-  zapalki: { room: 'izba', kw: ['zapalk', 'zapalek', 'match', 'pudelk'], take: true, pos: [-2.55, 1.44, -2.57], g: { approach: 0.45 }, name: ['zapałki', 'matches'],
+  zapalki: { room: 'izba', kw: ['zapalk', 'zapalek', 'match', 'pudelk'], take: true, pos: [-2.55, 1.47, -2.57], g: { approach: 0.45, dip: -0.35 }, name: ['zapałki', 'matches'],
     ex: () => ['Pudełko zapałek. Zostało kilkanaście.', 'A box of matches. A dozen or so left.'], takeMsg: ['Bierzesz pudełko zapałek.', 'You take the box of matches.'] },
-  pogrzebacz: { room: 'izba', kw: ['pogrzebacz', 'poker'], take: true, pos: [-3.27, 0.5, -1.26], g: { approach: 0.4, dip: 0.2 }, name: ['pogrzebacz', 'poker'],
+  pogrzebacz: { room: 'izba', kw: ['pogrzebacz', 'poker'], take: true, pos: [-2.8, 0.55, -1.84], g: { approach: 0.4, dip: 0.2 }, name: ['pogrzebacz', 'poker'],
     ex: () => F('pokerHot') ? ['Pogrzebacz, rozgrzany do czerwoności.', 'The poker, heated red-hot.'] : ['Ciężki żelazny pogrzebacz. Dobry do podważania.', 'A heavy iron poker. Good for prying.'],
     takeMsg: ['Bierzesz pogrzebacz. Ciężki, żelazny, dobry do podważania.', 'You take the poker. Heavy iron, good for prying.'] },
   haki: { room: 'izba', kw: ['hak', 'uchwyt', 'hook', 'bracket', 'harpunic sciana'], pos: [-3.33, 1.78, -2.42], g: { approach: 0.4 },
@@ -1608,15 +1657,15 @@ const OBJ = {
   romanG: { room: 'galeria', kw: ['roman', 'latarnik', 'keeper', 'starzec', 'old man', 'harpunic', 'gun'], pos: [-1.6, 13.0, 2.2], g: { approach: 0.2 },
     vis: () => F('romanAlly'), ex: () => ['Roman siedzi pod ścianą, z naładowaną harpunicą na kolanach. Nie spuszcza oczu z szyb.', 'Roman sits against the wall with the loaded harpoon gun across his knees. He never takes his eyes off the glass.'] },
   // --- storeroom
-  beczki: { room: 'magazyn', kw: ['beczk', 'beczek', 'barrel', 'naft', 'kerosene'], pos: [5.75, 0.6, 2.0], g: { approach: 0.45 },
-    ex: () => { S.f.canFound = true; return has('kanister') || F('oilGone') ? ['Beczki na naftę. Wszystkie puste, furmanka nie przyjechała.', "Kerosene barrels. All empty; the supply cart never came."] : ['Beczki na naftę. Wszystkie puste, furmanka nie przyjechała. Ale za beczkami, w kącie, stoi kanister.', "Kerosene barrels. All empty; the supply cart never came. But behind them, in the corner, stands a can."]; } },
-  kanister: { room: 'magazyn', kw: ['kanister', 'kanistr', 'olej', 'oil', 'canister', 'can', 'tran', 'whale'], take: true, pos: [5.8, 0.3, 2.4], g: { approach: 0.45, dip: 0.3 }, name: ['kanister oleju', 'can of oil'],
+  beczki: { room: 'magazyn', kw: ['beczk', 'beczek', 'barrel', 'naft', 'kerosene'], pos: [6.3, 0.5, 1.9], g: { approach: 0.45 },
+    ex: () => { S.f.canFound = true; return has('kanister') || F('oilGone') ? ['Beczki na naftę. Wszystkie puste, furmanka nie przyjechała.', "Kerosene barrels. All empty; the supply cart never came."] : ['Beczki na naftę. Wszystkie puste, furmanka nie przyjechała. Ale za ostatnią beczką, w kącie, stoi kanister.', "Kerosene barrels. All empty; the supply cart never came. But in the corner, behind the last barrel, stands a can."]; } },
+  kanister: { room: 'magazyn', kw: ['kanister', 'kanistr', 'olej', 'oil', 'canister', 'can', 'tran', 'whale'], take: true, pos: [7.25, 0.3, 1.6], g: { approach: 0.45, dip: 0.3 }, name: ['kanister oleju', 'can of oil'],
     vis: () => F('canFound') && !F('oilGone'), ex: () => ['Ciężki kanister pełen oleju wielorybiego. Roman nie ufa nafcie.', "A heavy can full of whale oil. Roman doesn't trust kerosene."],
     takeMsg: ['Bierzesz kanister. Jest ciężki, pełen oleju wielorybiego.', "You take the can. It's heavy, full of whale oil."] },
   kuferR: { room: 'magazyn', kw: ['kufer', 'kufr', 'skrzyni', 'chest', 'zamek', 'lock', 'szyfr', 'combination', 'dial', 'kufer roman'], pos: [8.55, 0.4, 0.6], g: { approach: 0.5, dip: 0.3 },
     ex: () => F('chestROpen') ? (has('posoka') || F('posokaUsed') ? ['Otwarty kufer Romana. Pusty, tylko trociny.', "Roman's open chest. Empty but for sawdust."] : ['Otwarty kufer Romana. W trocinach leży gruba butla z czarnym płynem.', "Roman's open chest. A thick bottle of black liquid lies in the sawdust."])
       : ['Okuty kufer Romana z zamkiem szyfrowym na cztery cyfry.', "Roman's iron-bound chest with a four-digit combination lock."] },
-  posoka: { room: 'magazyn', kw: ['posok', 'butl', 'czarn', 'ichor', 'black', 'krew', 'blood', 'butelk czarn', 'bottl black', 'black liquid', 'czarn plyn', 'butl czarn'], take: true, pos: [8.55, 0.7, 0.6], g: { approach: 0.5, dip: 0.3 }, name: ['butla Posoki', 'bottle of black ichor'],
+  posoka: { room: 'magazyn', kw: ['posok', 'butl', 'czarn', 'ichor', 'black', 'krew', 'blood', 'butelk czarn', 'bottl black', 'black liquid', 'czarn plyn', 'butl czarn'], take: true, pos: [8.5, 0.8, 0.6], g: { approach: 0.5, dip: 0.3 }, name: ['butla Posoki', 'bottle of black ichor'],
     vis: () => F('chestROpen') && !F('posokaUsed'), ex: () => ['Gruba butla z czarnym, gęstym płynem. Jest ciepła, jakby coś w niej żyło.', 'A thick bottle of black, viscous liquid. It is warm, as if something in it were alive.'],
     takeMsg: ['Bierzesz butlę. Płyn w środku jest czarny i gęsty. Butla jest ciepła.', 'You take the bottle. The liquid inside is black and thick. The bottle is warm.'] },
   klapa: { room: 'magazyn', kw: ['klap', 'luk', 'hatch', 'trapdoor', 'trap door', 'drabin', 'ladder'], pos: [7.0, 0.05, -1.2], g: { approach: 0.45, dip: 0.2 },
@@ -1901,6 +1950,23 @@ const MSG = {
 let lastTimed = false;
 function out(m, style) { say(T(m), style || 0); }
 // perform an action: optional glance, optional mid effect, then messages, then time
+// rough size (m) of each thing the camera looks at, so a glance can zoom in on it
+const GSIZE = {
+  koja: 0.5, suchar: 0.1, kojaR: 0.5, samogon: 0.15, kojaW: 0.5, kuferW: 0.4, fiolka: 0.1, list: 0.12, rozklad: 0.12,
+  stol: 0.6, kubek: 0.08, dziennik: 0.15, regal: 0.6, stary: 0.25, regulamin: 0.25, radio: 0.2, bezpiecznik: 0.08,
+  kruk: 0.25, gniazdo: 0.2, okno: 0.35, lustro: 0.3, kominek: 0.6, zapalki: 0.08, pogrzebacz: 0.25, haki: 0.15,
+  zegar: 0.2, grafik: 0.18, krata: 0.6, schowek: 0.6, roman: 0.6, harpunica: 0.12, romanG: 0.5,
+  beczki: 0.9, kanister: 0.2, kuferR: 0.4, posoka: 0.2, klapa: 0.45, hak: 0.1, sluz: 0.35, klucz: 0.08,
+  odplyw: 0.15, butelka: 0.1, slady: 0.5, ryty: 0.8, sklepienie: 1.5, drabinaG: 0.6, latarnia: 0.2,
+  sladyG: 0.6, glazy: 1.2, mechanizm: 1.0, harpun: 0.5, tarcza: 0.3, smar: 0.4, ciezarki: 0.3,
+  lampa: 0.5, soczewka: 0.7, korba: 0.2, zaslony: 0.8
+};
+const LIFT = {
+  pogrzebacz: ['poker'], zapalki: ['matches'], samogon: ['gin'], suchar: ['biscuit'], fiolka: ['vial'], list: ['letterP'],
+  rozklad: ['timetable'], kanister: ['canister'], posoka: ['posoka'], klucz: ['key'], butelka: ['noteBottle'],
+  latarnia: ['garbLantern', 'garbGlass'], harpun: ['harpoon'], bezpiecznik: ['fuse']
+};
+function liftPrims(id) { return (LIFT[id] || []).map(function (k) { return G[k]; }).filter(Boolean); }
 function perform(o) {
   const finish = function () {
     if (o.then) o.then();
@@ -1913,7 +1979,10 @@ function perform(o) {
   };
   const tgt = o.target ? (Array.isArray(o.target) ? o.target : objPos(o.target)) : null;
   if (tgt) {
-    const g = Object.assign({}, (o.target && !Array.isArray(o.target) && OBJ[o.target].g) || {}, o.g || {});
+    const id = !Array.isArray(o.target) ? o.target : null;
+    const g = Object.assign({}, (id && OBJ[id].g) || {}, o.g || {});
+    if (g.size == null && id && GSIZE[id]) g.size = GSIZE[id];
+    if (o.lift) g.lift = liftPrims(o.lift);
     g.mid = function () { if (o.mid) { o.mid(); syncWorld(); } };
     startGlance(tgt, g, finish);
   } else { if (o.mid) { o.mid(); syncWorld(); } finish(); }
@@ -2053,19 +2122,19 @@ const HANDLERS = {
     }
     if (id === 'klucz') {
       if (tk.some(function (t) { return /^(pogrzebacz|poker)/.test(t); })) return fishKey();
-      return perform({ target: 'klucz', cost: 1, mid: function () { give('klucz'); set('bitten'); }, msgs: [['Sięgasz do śluzu. Coś wbija ci zęby w dłoń: okrągła paszcza pełna haczyków. Wyrywasz rękę razem z kluczem. Krew kapie na podłogę, palce drżą.', 'You reach into the slime. Something sinks its teeth into your hand: a round mouth full of hooks. You tear your hand free with the key. Blood drips on the floor; your fingers shake.']] });
+      return perform({ target: 'klucz', cost: 1, lift: 'klucz', mid: function () { give('klucz'); set('bitten'); }, msgs: [['Sięgasz do śluzu. Coś wbija ci zęby w dłoń: okrągła paszcza pełna haczyków. Wyrywasz rękę razem z kluczem. Krew kapie na podłogę, palce drżą.', 'You reach into the slime. Something sinks its teeth into your hand: a round mouth full of hooks. You tear your hand free with the key. Blood drips on the floor; your fingers shake.']] });
     }
     if (id === 'buty') return out(['Masz je na nogach.', "You're wearing them."]);
     if (id === 'odplyw' && F('drainThing') && !has('butelka')) return HANDLERS.take(['butelk']);
     if (id === 'latarnia') {
       const lit = W.falseLight;
-      return perform({ target: 'latarnia', cost: 1, mid: function () { give('latarnia'); set('falseLightOn', false); }, msgs: [lit ? ['Gasisz knot i wyciągasz latarnię ze szczeliny. Jest jeszcze ciepła.', 'You pinch out the wick and pull the lantern from the crevice. It is still warm.'] : ['Wyciągasz zgaszoną latarnię ze szczeliny. Jest jeszcze ciepła.', 'You pull the dead lantern out of the crevice. It is still warm.']] });
+      return perform({ target: 'latarnia', cost: 1, lift: 'latarnia', mid: function () { give('latarnia'); set('falseLightOn', false); }, msgs: [lit ? ['Gasisz knot i wyciągasz latarnię ze szczeliny. Jest jeszcze ciepła.', 'You pinch out the wick and pull the lantern from the crevice. It is still warm.'] : ['Wyciągasz zgaszoną latarnię ze szczeliny. Jest jeszcze ciepła.', 'You pull the dead lantern out of the crevice. It is still warm.']] });
     }
     if (id === 'harpun') {
       if (F('harpoonInGears')) return fail(['Harpun siedzi ciasno między zębatkami. Potrzebujesz dźwigni albo smaru.', 'The harpoon is wedged tight between the gears. You need leverage or grease.'], 'harpun');
     }
     if (!o.take) return fail(MSG.cantTake, o.pos ? id : null);
-    perform({ target: o.pos ? id : null, cost: 1, mid: function () { give(id); }, msgs: [o.takeMsg || ['Bierzesz to.', 'Taken.']] });
+    perform({ target: o.pos ? id : null, cost: 1, lift: id, mid: function () { give(id); }, msgs: [o.takeMsg || ['Bierzesz to.', 'Taken.']] });
   },
   open: function (tk, rest) {
     const ids = findObjs(tk), id = ids[0], hasId = function (x) { return ids.indexOf(x) >= 0; };
@@ -2168,7 +2237,7 @@ const HANDLERS = {
   pull: function (tk) {
     if (S.room === 'komora' && (mentions(tk, 'harpun') || !tk.length)) {
       if (!F('harpoonInGears')) return out(['Harpuna już tu nie ma.', 'The harpoon is no longer here.']);
-      if (F('greased')) return perform({ target: 'harpun', cost: 1, mid: function () { set('harpoonInGears', false); give('harpun'); }, msgs: [['Śliski od oleju harpun wysuwa się spomiędzy zębów koła. Masz go.', 'Slick with oil, the harpoon slides out from between the teeth. You have it.']] });
+      if (F('greased')) return perform({ target: 'harpun', cost: 1, lift: 'harpun', mid: function () { set('harpoonInGears', false); give('harpun'); }, msgs: [['Śliski od oleju harpun wysuwa się spomiędzy zębów koła. Masz go.', 'Slick with oil, the harpoon slides out from between the teeth. You have it.']] });
       if (has('pogrzebacz')) return pryHarpoon();
       return fail(['Ciągniesz z całych sił. Harpun ani drgnie. Potrzebujesz dźwigni albo smaru.', "You pull with all your strength. The harpoon doesn't budge. You need leverage or grease."], 'harpun');
     }
@@ -2190,7 +2259,7 @@ const HANDLERS = {
     if (mentions(tk, 'roman') && !tk.some(function (t) { return /^(kruk|raven|crow|ping|ptak|bird)/.test(t); })) return HANDLERS.give(tk);
     if (!F('windowSeen')) return out(['Nie widzisz tu nikogo do karmienia.', "You don't see anyone here to feed."]);
     if (!has('suchar')) return out(['Nie masz czym nakarmić kruka.', "You have nothing to feed the raven."]);
-    perform({ target: 'kruk', cost: 1, mid: function () { drop('suchar'); set('sucharFed'); set('fuseInNest', false); give('bezpiecznik'); }, msgs: [['Uchylasz lufcik przy gnieździe i podsuwasz krukowi suchar. Kruk łapie go w dziób, a z gniazda wypada błyszcząca rzecz. Łapiesz ją w locie: to porcelanowy bezpiecznik z mosiężnymi stykami. — PONG! — skrzeczy kruk z pełnym dziobem.', "You open the little vent by the nest and hold out the biscuit. The raven snaps it up, and something shiny tumbles out of the nest. You catch it: a porcelain fuse with brass contacts. 'PONG!' croaks the raven, beak full."]] });
+    perform({ target: 'kruk', cost: 1, lift: 'bezpiecznik', mid: function () { drop('suchar'); set('sucharFed'); set('fuseInNest', false); give('bezpiecznik'); }, msgs: [['Uchylasz lufcik przy gnieździe i podsuwasz krukowi suchar. Kruk łapie go w dziób, a z gniazda wypada błyszcząca rzecz. Łapiesz ją w locie: to porcelanowy bezpiecznik z mosiężnymi stykami. — PONG! — skrzeczy kruk z pełnym dziobem.', "You open the little vent by the nest and hold out the biscuit. The raven snaps it up, and something shiny tumbles out of the nest. You catch it: a porcelain fuse with brass contacts. 'PONG!' croaks the raven, beak full."]] });
   },
   give: function (tk) {
     if (tk.some(isRaven)) return HANDLERS.feed(tk);
@@ -2430,12 +2499,12 @@ function tryCode(code) {
 function fishKey() {
   if (has('klucz') || F('keyUsed')) return out(['Klucz już masz.', 'You already have the key.']);
   if (!has('pogrzebacz')) return out(['Nie masz czym wyłowić klucza. A ręki do tego śluzu lepiej nie wkładać.', "You have nothing to fish the key out with. And you'd better not put your hand in that slime."]);
-  perform({ target: 'klucz', cost: 1, mid: function () { give('klucz'); }, msgs: [['Ostrożnie wyławiasz klucz pogrzebaczem. Coś w śluzie kłapie w powietrzu, ale cię nie dosięga. Klucz jest mosiężny, z wybitym napisem WACHTA.', 'Carefully you fish the key out with the poker. Something in the slime snaps at the air but cannot reach you. The key is brass, stamped WACHTA.']] });
+  perform({ target: 'klucz', cost: 1, lift: 'klucz', mid: function () { give('klucz'); }, msgs: [['Ostrożnie wyławiasz klucz pogrzebaczem. Coś w śluzie kłapie w powietrzu, ale cię nie dosięga. Klucz jest mosiężny, z wybitym napisem WACHTA.', 'Carefully you fish the key out with the poker. Something in the slime snaps at the air but cannot reach you. The key is brass, stamped WACHTA.']] });
 }
 function pryHarpoon() {
   if (!F('harpoonInGears')) return out(['Harpuna już tu nie ma.', 'The harpoon is no longer here.']);
   if (!has('pogrzebacz')) return fail(MSG.needPoker, 'harpun');
-  perform({ target: 'harpun', cost: 1, mid: function () { set('harpoonInGears', false); give('harpun'); S.f.harpoonSeen = true; }, msgs: [['Wsuwasz pogrzebacz pod harpun i naciskasz całym ciężarem. Żelazo zgrzyta, koło puszcza. Harpun wypada ci prosto w ręce. To harpun Romana, ten znad kominka.', "You wedge the poker under the harpoon and lean on it with all your weight. Iron grinds and the wheel lets go. The harpoon drops straight into your hands. It's Roman's harpoon, the one from above the fireplace."]] });
+  perform({ target: 'harpun', cost: 1, lift: 'harpun', mid: function () { set('harpoonInGears', false); give('harpun'); S.f.harpoonSeen = true; }, msgs: [['Wsuwasz pogrzebacz pod harpun i naciskasz całym ciężarem. Żelazo zgrzyta, koło puszcza. Harpun wypada ci prosto w ręce. To harpun Romana, ten znad kominka.', "You wedge the poker under the harpoon and lean on it with all your weight. Iron grinds and the wheel lets go. The harpoon drops straight into your hands. It's Roman's harpoon, the one from above the fireplace."]] });
 }
 function oilFire(liq) {
   if (S.room !== 'izba') return out(['Tu nie ma kominka.', 'There is no fireplace here.']);
